@@ -25,8 +25,8 @@ private:
     cxxopts::Options options;
     void ensureConsistency() {
         mDimension = std::max(1, mDimension);
-        if (mFilePath.length() == 0) {
-            throw cxxopts::OptionException();
+        if (mPath.length() == 0) {
+            throw cxxopts::OptionException("Path can't be empty.");
         }
     }
 public:
@@ -61,10 +61,23 @@ public:
     }
 };
 
+class AnnotatorException : public std::exception {
+private:
+    std::string m_message;
+public:
+    AnnotatorException(const std::string& message) : m_message(message) {
+        // empty
+    }
+
+    virtual const char* what() const noexcept {
+        return m_message.c_str();
+    }
+};
+
 /**
     Reads input from cmd line in the format of "[int, int, ...]"
 
-    Returns std::vector<int>
+    Returns an std::vector<int>
 */
 std::vector<int> readInput() {
     std::vector<int> v;
@@ -74,18 +87,69 @@ std::vector<int> readInput() {
     char c;
     ss >> c;
     if (c != '[') {
-        throw std::exception("Input error. Should start with '['.");
+        throw AnnotatorException("Input error. Should start with '['.");
     }
     int i;
     c = ',';
     while (c != ']') {
         if (c != ',') {
-            throw std::exception("Input error. Should separate elements by ','.");
+            throw AnnotatorException("Input error. Should separate elements by ','.");
         }
         ss >> i >> c;       
         v.push_back(i);
     }
     return v;
+}
+
+/**
+    Pretty prints one queue.
+
+    Sample output:
+    "
+       1.         2.         3.
+     -----      -----      -----    
+    | 100 |    |   5 |    |   4 |
+    |  71 |    |  22 |    |  14 |
+     -----      -----      -----
+    "
+
+    See prettyPrintQueues() for more.
+*/
+void prettyPrintQueue(const std::vector<int>&queues, int offset, const Options& opts)
+{
+    int dim = opts.getDimension();
+    int length = queues.size() / 2 / dim;
+
+    //   1.         2.         3.
+    for (int i = 0; i < length; ++i) {
+        std::cout.width(4);
+        std::cout << std::right << (i + 1) << '.' << "      ";
+    }
+    std::cout << '\n';
+
+    // -----      -----      -----    
+    for (int i = 0; i < length; ++i) {
+        std::cout << " -----     ";
+    }
+    std::cout << '\n';
+
+    //|   1 |    |   0 |    |  55 |
+    //|  71 |    |  22 |    |  14 |
+    
+    for (int d = 0; d < dim; ++d) {
+        for (int i = 0; i < length; ++i) {
+            std::cout << "| ";
+            std::cout.width(3);
+            std::cout << std::right << queues[i * dim + d + offset] << " |    ";
+        }
+        std::cout << '\n';
+    }
+
+    // -----      -----      -----    
+    for (int i = 0; i < length; ++i) {
+        std::cout << " -----     ";
+    }
+    std::cout << '\n';
 }
 
 /**
@@ -106,74 +170,62 @@ std::vector<int> readInput() {
     |   1 |    |   0 |    |  55 |
     |  20 |    |   0 |    |   9 |
      -----      -----      -----
-
-    Annotate the best distribution of the jobs on the given nodes.
     "
-
-    Returns the length of the queues.
 */
-int prettyPrintQueues(const std::vector<int>& queues, const options& opts) {
-    std::cout << "\nNode resources.\n\n"
-    int dim = opts.getDimension();
-
-    int length = queues.size() / 2 / dim;
-    
-    return length;
+void prettyPrintQueues(const std::vector<int>& queues, const Options& opts) {
+    std::cout << "\nNodes.\n\n";
+    prettyPrintQueue(queues, 0, opts);
+    std::cout << "\nJobs\n\n";
+    prettyPrintQueue(queues, queues.size() / 2, opts);    
 }
 
 /**
     Asks user for input to annotate the jobs.
 
-    Unnassignable jobs can/should be assigned to Node 0, which is not a valid node.
+    Unnassignable jobs should be assigned to Node 0, which is virtual node.
 
     Returns the annotations.
 */
-std::vector<int> annotate(length) {
-    std::cout << "\nT = (" << target.first << ", " << target.second << ")\n";
-    std::cout << "End coordinates of path, as 'x, y' (default is T): ";
+std::vector<int> annotate(int length) {
+    std::cout << "\nAnnotate the best distribution of the jobs on the given nodes.\n\n";
+    std::cout << "Give the assigned Node number for each job. (0 means unassigned)\n\n";
+    
+    std::vector<int> annotations;
+    annotations.reserve(length);
+
     std::string line;
-    std::getline(std::cin, line);
-    std::istringstream ss{line};
-    char c;
-    if (line.length() == 0) {        
-        return target;
+    for (int i = 0; i < length; ++i) {
+        std::cout << "Job " << (i + 1) << ". :  ";
+        std::getline(std::cin, line);
+        if (line.length() == 0) {        
+            throw AnnotatorException("No annotations.");
+        }
+        std::istringstream ss{line};
+        int n;
+        ss >> n;
+        annotations.push_back(n);
     }
-    ss >> target.first >> c;
-    if (c != ',') {
-        throw std::exception("Input error. Should separate elements by ','.");        
-    }
-    ss >> target.second;
-    return target;
+    return annotations;
 }
 
 /**
     Appends the queues and it's annotations to the file specified by the 'file' cmd line option.
 */
-void writeToFile(const std::string& filePath, const std::vector<int>& queues, const std::vector<int>& annotations) {
-    auto fs = std::ofstream(filePath, std::ios::app|std::ios::out);
+void writeToFile(const std::string& path, const std::vector<int>& queues, const std::vector<int>& annotations) {
+    auto fs = std::ofstream(path, std::ios::app|std::ios::out);
     bool notFirst = false;
-    for (auto it = map.cbegin(); it != map.cend(); ++it) {
+    for (auto it = queues.cbegin(); it != queues.cend(); ++it) {
         if (notFirst) {
             fs << " ";
         }
         fs << *it;
         notFirst = true;
     }
-    int mSize = (-3 + std::sqrt(9 - 4 * 3 * (1 - map.size()))) / 6;
-    for (int y = -mSize; y <= mSize; ++y) {
-        for (int x = -mSize; x <= mSize; ++x) {
-            int z = -x - y;
-            if (z > mSize || z < -mSize) {
-                continue;
-            }
-            fs << " ";
-            if (x == P.first && y == P.second) {
-                fs << "1";
-                continue;
-            }
-            fs << "0";
-        }
+
+    for (auto it = annotations.cbegin(); it != annotations.cend(); ++it) {        
+        fs << ' ' << *it;        
     }
+
     fs << "\n";
 }
 
@@ -189,9 +241,9 @@ int main(int argc, char* argv[]) {
     }
     // opts.print();
     auto queues = readInput();
-    auto length = prettyPrintQueues(queues, opts);
-    auto annotations = annotate(length);
-    writeToFile(opts.getFilePath(), queues, annotations);
+    prettyPrintQueues(queues, opts);
+    auto annotations = annotate(queues.size() / 2 / opts.getDimension());
+    writeToFile(opts.getPath(), queues, annotations);
     return 0;
 }
 

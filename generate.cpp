@@ -23,7 +23,7 @@ private:
     bool mHelp = false;    
     cxxopts::Options options;
     void ensureConsistency() {
-        mLength = std::max(1, mLength);        
+        mLength = std::max(1, mLength);
         mDimension = std::max(1, mDimension);
         mRatio = std::min(1., std::max(0., mRatio));
         mSize = std::max(1, mSize);
@@ -31,11 +31,11 @@ private:
 public:
     Options() : options("generate", "Generator of node and job queues") {
         options.add_options()
-          ("l,length", "length of the queues (default: 10)", cxxopts::value<int>(mLength))
-          ("d,dim", "dimension of the items (default: 2)", cxxopts::value<int>(mDimension))
-          ("r,ratio", "amount of empty nodes and/or jobs distributed randomly (default: 0.2)",
+          ("l,length", "Length of the queues (default: 10)", cxxopts::value<int>(mLength))
+          ("d,dim", "Dimension of the items (default: 2)", cxxopts::value<int>(mDimension))
+          ("r,ratio", "Amount of empty nodes and/or jobs distributed randomly (default: 0.2)",
             cxxopts::value<double>(mRatio))
-          ("s,size", "number of generated sequence pairs (default: 1)", cxxopts::value<int>(mSize))
+          ("s,size", "Number of generated sequence pairs (default: 1)", cxxopts::value<int>(mSize))
           ("n,naked", "Naked output, no '[', ',', ']' (default: false)", cxxopts::value<bool>(mNaked))
           ("h,help", "Prints help", cxxopts::value<bool>(mHelp))
         ;
@@ -99,7 +99,8 @@ void print_naked(const Sequence& sequence)
 }
 
 /**
-    Returns a random distribution of the empty and valid nodes and jobs.
+    Returns a random distribution that marks the place of
+    empty and real elements.
 */
 std::vector<bool> randomizedNullItems(int length, double ratio)
 {
@@ -120,12 +121,12 @@ std::vector<bool> randomizedNullItems(int length, double ratio)
 }
 
 /**
-    Returns a vector<int>. All elements are between 0 and 100.
+    Returns a random vector of integers whose elements are between 0 and 100.
     
     The hidden structure is the following:
-    Two consecutive 'length' number of tuples of 'dimension' number of items.
-    First tuple array represents the node resources.
-    The second tupple array represents the job resources.
+    - Two consecutive 'length' number of tuples of 'dimension' number of items.
+    - First tuple array represents the node resources.
+    - Second tupple array represents the job resources.
 */
 std::vector<int> generate(const Options& opts)
 {
