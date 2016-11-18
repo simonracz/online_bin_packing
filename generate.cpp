@@ -70,8 +70,7 @@ public:
 };
 
 template <typename Sequence>
-void print(const Sequence& sequence)
-{
+void print(const Sequence& sequence) {
     std::cout << "[";
     bool notFirst = false;
     for (const auto& s : sequence) {
@@ -85,8 +84,7 @@ void print(const Sequence& sequence)
 }
 
 template <typename Sequence>
-void print_naked(const Sequence& sequence)
-{
+void print_naked(const Sequence& sequence) {
     bool notFirst = false;
     for (const auto& s : sequence) {
         if (notFirst) {
@@ -102,8 +100,7 @@ void print_naked(const Sequence& sequence)
     Returns a random distribution that marks the place of
     empty and real elements.
 */
-std::vector<bool> randomizedNullItems(int length, double ratio)
-{
+std::vector<bool> randomizedNullItems(int length, double ratio) {
     std::vector<bool> items(2 * length);
     int nullItems = ratio * 2 * length;
     for (int i = 0; i < nullItems; ++i) {
@@ -121,15 +118,14 @@ std::vector<bool> randomizedNullItems(int length, double ratio)
 }
 
 /**
-    Returns a random vector of integers whose elements are between 0 and 100.
+    Returns a random vector of integers whose elements are between 1 and 100.
     
     The hidden structure is the following:
     - Two consecutive 'length' number of tuples of 'dimension' number of items.
     - First tuple array represents the node resources.
     - Second tupple array represents the job resources.
 */
-std::vector<int> generate(const Options& opts)
-{
+std::vector<int> generate(const Options& opts) {
     int length = opts.getLength();
     int dim = opts.getDimension();
     auto nullItemDistribution = randomizedNullItems(length, opts.getRatio());
@@ -137,7 +133,7 @@ std::vector<int> generate(const Options& opts)
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 m(seed);
     
-    std::uniform_int_distribution<int> dist(0, 100);
+    std::uniform_int_distribution<int> dist(1, 100);
     auto dice = std::bind(dist, m);
     
     // assembling return vector

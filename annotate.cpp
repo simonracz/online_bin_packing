@@ -14,6 +14,8 @@
 
 #include "cxxopts.hpp"
 
+#include "AutoAnnotator.h"
+
 /**
     Handles command line options.
 */
@@ -21,6 +23,7 @@ class Options {
 private:
     std::string mPath;
     int mDimension = 2;
+    bool mAuto = false;
     bool mHelp = false;    
     cxxopts::Options options;
     void ensureConsistency() {
@@ -30,11 +33,12 @@ private:
         }
     }
 public:
-    Options() : options("annotate", "Online bin packing annotator for learning algorithms") {
+    Options() : options("annotate", "Online bin packing annotator to create training sets") {
         options.add_options()
           ("f,file", "Results are appended to this file", cxxopts::value<std::string>(mPath)
                 ->default_value("ann.txt"))
           ("d,dim", "Dimension of the items (default: 2)", cxxopts::value<int>(mDimension))
+          ("a,auto", "Automatically find one optiomal solution (exponential runtime!)", cxxopts::value<bool>(mAuto))
           ("h,help", "Prints help", cxxopts::value<bool>(mHelp))
         ;
     }
@@ -50,12 +54,14 @@ public:
     }
     std::string getPath() const {return mPath;}
     int getDimension() const {return mDimension;}
+    bool isAuto() const {return mAuto;}
     bool isHelp() const {return mHelp;}
     std::string helpMessage() const {return options.help({""});}
     void print() const {
         std::cout << "options = {" 
                   << "\n  file: " << mPath
                   << ",\n  dimension: " << mDimension
+                  << ",\n  auto: " << mAuto
                   << ",\n  help: " << mHelp
                   << "\n}" << std::endl;
     }
@@ -115,8 +121,7 @@ std::vector<int> readInput() {
 
     See prettyPrintQueues() for more.
 */
-void prettyPrintQueue(const std::vector<int>&queues, int offset, const Options& opts)
-{
+void prettyPrintQueue(const std::vector<int>&queues, int offset, const Options& opts) {
     int dim = opts.getDimension();
     int length = queues.size() / 2 / dim;
 
@@ -135,7 +140,6 @@ void prettyPrintQueue(const std::vector<int>&queues, int offset, const Options& 
 
     //|   1 |    |   0 |    |  55 |
     //|  71 |    |  22 |    |  14 |
-    
     for (int d = 0; d < dim; ++d) {
         for (int i = 0; i < length; ++i) {
             std::cout << "| ";
@@ -242,7 +246,14 @@ int main(int argc, char* argv[]) {
     // opts.print();
     auto queues = readInput();
     prettyPrintQueues(queues, opts);
-    auto annotations = annotate(queues.size() / 2 / opts.getDimension());
+    std::vector<int> annotations;
+    if (opts.isAuto()) {
+        auto autoAnnotator = AutoAnnotator(queues, opts.getDimension());
+        annotations = autoAnnotator.annotate();
+        autoAnnotator.printDistribution();
+    } else {
+        annotations = annotate(queues.size() / 2 / opts.getDimension());    
+    }    
     writeToFile(opts.getPath(), queues, annotations);
     return 0;
 }

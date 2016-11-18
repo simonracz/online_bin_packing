@@ -12,7 +12,7 @@ generate: generate.cpp
 	$(CXX) -o generate $(CXXFLAGS) generate.cpp
 
 annotate: annotate.cpp
-	$(CXX) -o annotate $(CXXFLAGS) annotate.cpp
+	$(CXX) -o annotate $(CXXFLAGS) annotate.cpp AutoAnnotator.cpp
 
 .PHONY: clean
 
