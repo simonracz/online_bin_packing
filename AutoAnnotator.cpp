@@ -92,6 +92,15 @@ void AutoAnnotator::checkAndSaveDistribution(const std::vector<int>& distributio
     }
 }
 
+bool AutoAnnotator::taskIsEmpty(int taskId) {
+	for (int d = 0; d < mDimension; ++d) {
+		if (mQueues[mDimension * mLength + taskId * mDimension + d] != 0) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void AutoAnnotator::calculateOptimum(std::vector<int>& workQueue,
                                      std::vector<int>& distribution,
                                      int taskId) {
@@ -100,6 +109,12 @@ void AutoAnnotator::calculateOptimum(std::vector<int>& workQueue,
         checkAndSaveDistribution(distribution);
         return;
     }
+
+    if (taskIsEmpty(taskId)) {
+    	calculateOptimum(workQueue, distribution, taskId + 1);
+    	return;
+    }
+
     // need step when task is not assigned!
     for (int i = 0; i <= mLength; ++i) {
         if (tryAssignTaskToNode(workQueue, taskId, i)) {

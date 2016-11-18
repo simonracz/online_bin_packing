@@ -9,7 +9,8 @@ private:
     int mLength;
     std::vector<int> mBestDistribution;
     int mBestWaste;
-    
+
+    bool taskIsEmpty(int taskId);
     int calculateWaste(const std::vector<int>& distribution);
     void calculateOptimum(std::vector<int>& workQueue, std::vector<int>& distribution, int taskId);
     std::vector<int> formatDistribution(std::vector<int> distribution);

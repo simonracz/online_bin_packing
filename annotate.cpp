@@ -33,7 +33,7 @@ private:
         }
     }
 public:
-    Options() : options("annotate", "Online bin packing annotator to create training sets") {
+    Options() : options("annotate", "Online bin packing annotator for creating training sets") {
         options.add_options()
           ("f,file", "Results are appended to this file", cxxopts::value<std::string>(mPath)
                 ->default_value("ann.txt"))
