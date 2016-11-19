@@ -24,6 +24,7 @@ private:
     std::string mPath;
     int mDimension = 2;
     bool mAuto = false;
+    bool mCompact = false;
     bool mHelp = false;    
     cxxopts::Options options;
     void ensureConsistency() {
@@ -39,6 +40,7 @@ public:
                 ->default_value("ann.txt"))
           ("d,dim", "Dimension of the items (default: 2)", cxxopts::value<int>(mDimension))
           ("a,auto", "Automatically find one optiomal solution (exponential runtime!)", cxxopts::value<bool>(mAuto))
+          ("c,compact", "Annotation is in compact vector form instead of boolean vector form. (default: false)", cxxopts::value<bool>(mCompact))
           ("h,help", "Prints help", cxxopts::value<bool>(mHelp))
         ;
     }
@@ -55,6 +57,7 @@ public:
     std::string getPath() const {return mPath;}
     int getDimension() const {return mDimension;}
     bool isAuto() const {return mAuto;}
+    bool isCompact() const {return mCompact;}
     bool isHelp() const {return mHelp;}
     std::string helpMessage() const {return options.help({""});}
     void print() const {
@@ -62,6 +65,7 @@ public:
                   << "\n  file: " << mPath
                   << ",\n  dimension: " << mDimension
                   << ",\n  auto: " << mAuto
+                  << ",\n  compact: " << mCompact
                   << ",\n  help: " << mHelp
                   << "\n}" << std::endl;
     }
@@ -213,6 +217,21 @@ std::vector<int> annotate(int length) {
 }
 
 /**
+    Transforms a mathematical vector to a bool vector.
+
+    Example:
+    func([2, 3], 4) -> [0, 0, 1, 0, 0, 0, 0, 0, 1, 0]
+*/
+std::vector<int> vectorToBoolVector(const std::vector<int>& vec, int length) {
+    auto size = vec.size();
+    std::vector<int> ret(size * length, 0);
+    for (int i = 0; i < size; ++i) {
+        ret[length * i + vec[i]] = 1;
+    }
+    return ret;
+}
+
+/**
     Appends the queues and it's annotations to the file specified by the 'file' cmd line option.
 */
 void writeToFile(const std::string& path, const std::vector<int>& queues, const std::vector<int>& annotations) {
@@ -253,7 +272,10 @@ int main(int argc, char* argv[]) {
         autoAnnotator.printDistribution();
     } else {
         annotations = annotate(queues.size() / 2 / opts.getDimension());    
-    }    
+    }
+    if (!opts.isCompact()) {
+        annotations = vectorToBoolVector(annotations, queues.size() / 2 / opts.getDimension() + 1);
+    }
     writeToFile(opts.getPath(), queues, annotations);
     return 0;
 }

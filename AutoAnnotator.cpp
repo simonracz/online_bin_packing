@@ -35,7 +35,7 @@ std::vector<int> AutoAnnotator::formatDistribution(std::vector<int> distribution
 void AutoAnnotator::printDistribution() {
     auto printDist = formatDistribution(mBestDistribution);
     for (int i = 0; i < mLength; ++i) {
-        std::cout << "Job " << (i + 1) << ". : " << printDist[i] << "\n";
+        std::cout << "\nJob " << (i + 1) << ". : " << printDist[i] << "\n";
     }
 }
 

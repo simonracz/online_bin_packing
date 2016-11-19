@@ -1,4 +1,4 @@
-// add modern include guards
+#pragma once
 
 #include <vector>
 
