@@ -39,7 +39,7 @@ tail -n +6 ./octave/X_pred.txt > Xpred.txt
 ### Description
 
 The goal of this project is to compare a Neural Network algorithm with the First Fit algorithm
-on a version of the multi dimensional online bin packing problem.
+on a version of the multi-dimensional online bin packing problem.
 
 The end goal is met with a combination of many smaller programs - Unix style.
 
@@ -65,9 +65,9 @@ The end goal is met with a combination of many smaller programs - Unix style.
 
 ### Current results
 
-The current implementation uses only one hidden layer. While I expected it to perform worse than First Fit.
-It is much worse than that.
+The current implementation uses only one hidden layer. While I expected it to perform worse than First Fit,
+the actual result is much worse than that.
 
 ### Future plans
 
-Switch to python (theano). Use a deep convolutional neural network. Resources and tasks will naturally fit into this scheme. I expect much better results from it.
+Switch to python (theano) for experimenting. Use a deep convolutional neural network. Resources and tasks will naturally fit into that scheme. I expect much better results from it.
