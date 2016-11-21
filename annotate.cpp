@@ -1,12 +1,11 @@
+// Copyright (c) 2016 Simon Racz <simonracz@gmail.com>
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <algorithm>
 #include <vector>
-#include <exception>
 #include <memory>
-#include <random>
-#include <chrono>
 #include <numeric>
 #include <iterator>
 #include <iomanip>

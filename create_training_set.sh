@@ -9,17 +9,23 @@ die () {
 #base
 for i in `seq 0 0.1 0.9`;
 do
-	for j in `seq 1 20`
+	for j in `seq 1 500`
+	do
+		./generate -l 12 -r $i | ./annotate --auto -f $1
+	done
+done
+
+#common
+for i in `seq 0 0.1 0.4`;
+do
+	for j in `seq 1 1000`
 	do
 		./generate -l 12 -r $i | ./annotate --auto -f $1
 	done
 done
 
 #core
-for i in `seq 0 0.1 0.4`;
+for j in `seq 1 1000`
 do
-	for j in `seq 1 50`
-	do
-		./generate -l 12 -r $i | ./annotate --auto -f $1
-	done
+	./generate -l 12 | ./annotate --auto -f $1
 done

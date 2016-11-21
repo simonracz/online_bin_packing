@@ -1,3 +1,5 @@
+// Copyright (c) 2016 Simon Racz <simonracz@gmail.com>
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -19,7 +21,7 @@ private:
     int mDimension = 2;
     int mSize = 1;
     bool mNaked = false;
-    double mRatio = 0.2;
+    double mRatio = 0.0;
     bool mHelp = false;    
     cxxopts::Options options;
     void ensureConsistency() {
@@ -33,7 +35,7 @@ public:
         options.add_options()
           ("l,length", "Length of the queues (default: 10)", cxxopts::value<int>(mLength))
           ("d,dim", "Dimension of the items (default: 2)", cxxopts::value<int>(mDimension))
-          ("r,ratio", "Amount of empty nodes and/or jobs distributed randomly (default: 0.2)",
+          ("r,ratio", "Amount of empty nodes and/or jobs distributed randomly (default: 0.0)",
             cxxopts::value<double>(mRatio))
           ("s,size", "Number of generated sequence pairs (default: 1)", cxxopts::value<int>(mSize))
           ("n,naked", "Naked output, no '[', ',', ']' (default: false)", cxxopts::value<bool>(mNaked))

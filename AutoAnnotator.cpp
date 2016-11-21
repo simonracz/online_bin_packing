@@ -1,3 +1,5 @@
+// Copyright (c) 2016 Simon Racz <simonracz@gmail.com>
+
 #include <iostream>
 
 #include "AutoAnnotator.h"
