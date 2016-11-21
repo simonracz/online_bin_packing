@@ -1,6 +1,13 @@
 Multi Dimensional Online Bin Packing with Neural Networks
 =========================================================
 
+### Description
+
+The goal of this project is to compare a Neural Network algorithm with the First Fit algorithm
+on a version of the multi-dimensional online bin packing problem.
+
+The end goal is met with a combination of many smaller programs - Unix style.
+
 ### TLDR
 
 ```bash
@@ -35,13 +42,6 @@ tail -n +6 ./octave/X_opt.txt > Xopt.txt
 tail -n +6 ./octave/X_pred.txt > Xpred.txt
 ./evaluate -t ./Xopt.txt -p ./Xpred.txt -d 2 -l 12
 ```
-
-### Description
-
-The goal of this project is to compare a Neural Network algorithm with the First Fit algorithm
-on a version of the multi-dimensional online bin packing problem.
-
-The end goal is met with a combination of many smaller programs - Unix style.
 
 ## generate
 
