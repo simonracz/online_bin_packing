@@ -159,8 +159,8 @@ std::vector<int> extractResources(const std::vector<int>& queues, int sample, in
 }
 
 struct SortableTask {
-    int originalIndex;
-    int assignment;
+    int originalIndex = 0;
+    int assignment = 0;
     std::vector<int> resources;
 };
 
@@ -286,7 +286,7 @@ std::vector<int> calculateFirstFit(const std::vector<int>& queues, int length, i
         auto tasks = sortedTasks(queues, k, length, dimension);
         for (int i = 0; i < length; ++i) {
             for (int j = 1; j < (length + 1); ++j) {
-                if (tryAssignTaskToNode(resources, tasks[i], j)) {
+                if (tryAssignTaskToNode(resources, tasks[i], (j - 1))) {
                     tasks[i].assignment = j;
                     break;
                 }
