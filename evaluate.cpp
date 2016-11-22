@@ -165,6 +165,9 @@ struct SortableTask {
 };
 
 double harmonicMean(const std::vector<int>& nums) {
+    if (nums[0] == 0) {
+        return 0;
+    }
     double sum = 0;
     for (auto& item : nums) {
         sum += 1. / (double)item;
@@ -217,9 +220,9 @@ std::vector<int> checkPrediction(const std::vector<int>& queues,
             if (assignment != 0) {
                 bool valid = true;
                 for (int d = 0; d < dimension; ++d) {
-                    resources[i * dimension + d] 
+                    resources[(assignment - 1) * dimension + d] 
                         -= queues[sampleMarginInQueue * k + length * dimension + i * dimension + d];
-                    if (resources[i * dimension + d] < 0) {
+                    if (resources[(assignment - 1) * dimension + d] < 0) {
                         valid = false;
                     }
                 }
@@ -285,9 +288,9 @@ std::vector<int> calculateFirstFit(const std::vector<int>& queues, int length, i
         auto resources = extractResources(queues, k, length, dimension);
         auto tasks = sortedTasks(queues, k, length, dimension);
         for (int i = 0; i < length; ++i) {
-            for (int j = 1; j < (length + 1); ++j) {
-                if (tryAssignTaskToNode(resources, tasks[i], (j - 1))) {
-                    tasks[i].assignment = j;
+            for (int j = 0; j < length; ++j) {
+                if (tryAssignTaskToNode(resources, tasks[i], j)) {
+                    tasks[i].assignment = j + 1;
                     break;
                 }
             }
@@ -331,13 +334,6 @@ Stats calculateStatistics(const std::vector<int>& wasteWorstPred,
         divider = std::max(1., divider);
         double shift = wasteOpt[i];
         double item = (wastePred[i] - shift) / divider;
-        if (item < 0) {
-            std::cerr << "item below 0\nopt: " << wasteOpt[i] << "\nworst: " << wasteWorstPred[i] << "\nitem: " << wastePred[i] << "\n";
-
-        }
-        if (item > 1) {
-            std::cerr << "item above 1\nopt: " << wasteOpt[i] << "\nworst: " << wasteWorstPred[i] << "\nitem: " << wastePred[i] << "\n";
-        }
         mean = prevMean + (item - prevMean) / (i + 1);
         variance = variance + (item - prevMean) * (item - mean);
     }    
@@ -355,9 +351,9 @@ void printStatistics(const std::vector<int>& wasteWorstPred,
     auto predStats = calculateStatistics(wasteWorstPred, wasteOpt, wastePred);
     auto ffStats = calculateStatistics(wasteWorstPred, wasteOpt, wasteFF);
 
-    std::cout << "\nComparison of wasted resources for First Fit (FF) and provided matches.\n";
-    std::cout << "\nThe waste is normalized. Optimal solution has 0 mean and 0 std.\n\n";
-    std::cout << "FF\n\nMean: " << ffStats.mean << "\nStandard deviation: " << std::sqrt(ffStats.variance / sampleSize);
+    std::cout << "\nComparison of wasted resources for First Fit (FF) and provided prediction.\n";
+    std::cout << "\nThe waste is normalized. Optimal solution has mean 0 and the worst solution has mean 1.\n\n";
+    std::cout << "First Fit\n\nMean: " << ffStats.mean << "\nStandard deviation: " << std::sqrt(ffStats.variance / sampleSize);
     std::cout << "\n\nCustom Algorithm\n\nMean: " << predStats.mean
      << "\nStandard deviation: " << std::sqrt(predStats.variance / sampleSize) << std::endl;
     std::cout << std::endl;
