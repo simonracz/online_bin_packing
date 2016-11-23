@@ -3,13 +3,17 @@ clear ; close all; clc
 number_of_nodes = 12;
 dimension = 2;
 
-input_layer_size  = number_of_nodes * dimension * 2;
+input_layer_size  = number_of_nodes * dimension * 2 + 2 * number_of_nodes; % Last tag is for expansion
 hidden_layer_size = 440;
 num_labels = number_of_nodes * (number_of_nodes + 1);
 
 fprintf('Loading train.txt\n');
 fflush(stdout);
 load('train.txt');
+
+fprintf('Expanding training data.\n');
+fflush(stdout);
+XY_exp = expand(XY, number_of_nodes, dimension);
 
 tr_size = 10000;
 val_size = 500;
@@ -18,20 +22,19 @@ test_size = 500;
 % Set (training set, validation set, test set) with percentages.
 
 % Randomly select 'tr_size' data points for training set
-size(XY)
-sel = randperm(size(XY, 1));
+sel = randperm(size(XY_exp, 1));
 sel_tr = sel(1:tr_size);
 sel_val = sel((tr_size + 1):(tr_size + val_size));
 sel_test = sel((tr_size + val_size + 1):end);
 
-X = reshape(XY(sel_tr, 1:input_layer_size), tr_size, input_layer_size);
-y = reshape(XY(sel_tr, (input_layer_size + 1):end), tr_size, num_labels);
+X = reshape(XY_exp(sel_tr, 1:input_layer_size), tr_size, input_layer_size);
+y = reshape(XY_exp(sel_tr, (input_layer_size + 1):end), tr_size, num_labels);
 
-X_val = reshape(XY(sel_val, 1:input_layer_size), val_size, input_layer_size);
-y_val = reshape(XY(sel_val, (input_layer_size + 1):end), val_size, num_labels);
+X_val = reshape(XY_exp(sel_val, 1:input_layer_size), val_size, input_layer_size);
+y_val = reshape(XY_exp(sel_val, (input_layer_size + 1):end), val_size, num_labels);
 
-X_test = reshape(XY(sel_test, 1:input_layer_size), test_size, input_layer_size);
-y_test = reshape(XY(sel_test, (input_layer_size + 1):end), test_size, num_labels);
+X_test = reshape(XY_exp(sel_test, 1:input_layer_size), test_size, input_layer_size);
+y_test = reshape(XY_exp(sel_test, (input_layer_size + 1):end), test_size, num_labels);
 
 fprintf('Loading finished for X, y, X_val, y_val, X_test, y_test. Press enter to continue.\n');
 pause;
